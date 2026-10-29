@@ -17,7 +17,7 @@ public class CPU extends Component {
     public String getSocket() { return socket; }
     public int getTdp() { return tdp; }
     public int getPerformanceScore() { return performanceScore; }
-    public boolean hasIGPU() {return iGPU}
+    public boolean hasIGPU() {return iGPU;}
 
     @Override
     public String getSpecs() {
