@@ -1,9 +1,9 @@
 public abstract class Component {
     // Basic details every PC part needs
-    private String id;
-    private String name;
-    private String brand;
-    private double price;
+    private final String id;
+    private final String name;
+    private final String brand;
+    private final double price;
 
     // Constructor to set up the parts when created
     public Component(String id, String name, String brand, double price) {

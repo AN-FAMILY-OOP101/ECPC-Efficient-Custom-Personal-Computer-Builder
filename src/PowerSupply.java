@@ -1,7 +1,7 @@
 public class PowerSupply extends Component {
-    private int wattage;
-    private String efficiencyRating;
-    private String modularity;
+    private final int wattage;
+    private final String efficiencyRating;
+    private final String modularity;
 
     public PowerSupply(String id, String name, String brand, double price, int wattage, String efficiencyRating, String modularity) {
         super(id, name, brand, price);

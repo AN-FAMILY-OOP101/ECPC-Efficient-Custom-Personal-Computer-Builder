@@ -1,8 +1,8 @@
 public class Storage extends Component {
 
-    private int capacityGB;
-    private String storageType;
-    private String interfaceType;
+    private final int capacityGB;
+    private final String storageType;
+    private final String interfaceType;
 
     public Storage(String id, String name, String brand, double price, int capacityGB, String storageType, String interfaceType) {
         super(id, name, brand, price);

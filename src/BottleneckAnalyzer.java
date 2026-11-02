@@ -5,9 +5,9 @@ public class BottleneckAnalyzer {
     private static final double GPU_MIN = 9614.0;  // AMD Radeon RX 6500 XT
     private static final double GPU_MAX = 22619.0; // ASUS Dual GeForce RTX 5060 Ti OC 16GB
 
-    private int cpuScore;
-    private int gpuScore;
-    private String workload;
+    private final int cpuScore;
+    private final int gpuScore;
+    private final String workload;
 
     // Constructor to initialize scores and workload
     public BottleneckAnalyzer(int cpuScore, int gpuScore, String workload) {

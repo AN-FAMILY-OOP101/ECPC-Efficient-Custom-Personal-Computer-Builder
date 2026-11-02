@@ -1,8 +1,8 @@
 public class RAM extends Component {
 
-    private int capacityGB;
-    private String memoryType;
-    private int speedMHz;
+    private final int capacityGB;
+    private final String memoryType;
+    private final int speedMHz;
 
     public RAM(String id, String name, String brand, double price, int capacityGB, String memoryType, int speedMHz) {
         super(id, name, brand, price);

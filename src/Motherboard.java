@@ -1,9 +1,9 @@
 public class Motherboard extends Component {
     // Motherboard details
-    private String socket;
-    private String ramType; // DDR4 or DDR5
-    private int maxRamGb;
-    private String formFactor; // ATX, mATX, or sizes of motherboard
+    private final String socket;
+    private final String ramType; // DDR4 or DDR5
+    private final int maxRamGb;
+    private final String formFactor; // ATX, mATX, or sizes of motherboard
 
     public Motherboard(String id, String name, String brand, double price, String socket, String ramType, int maxRamGb, String formFactor) {
         super(id, name, brand, price);

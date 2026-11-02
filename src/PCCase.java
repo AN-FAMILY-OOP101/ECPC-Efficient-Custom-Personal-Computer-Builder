@@ -1,8 +1,8 @@
 import java.util.List;
 
 public class PCCase extends Component {
-    private List<String> supportedFormFactors; 
-    private int maxGpuLengthMm;
+    private final List<String> supportedFormFactors; 
+    private final int maxGpuLengthMm;
 
     // Constructor
     public PCCase(String id, String name, String brand, double price, List<String> supportedFormFactors, int maxGpuLengthMm) {

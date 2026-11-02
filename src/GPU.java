@@ -1,15 +1,13 @@
-public class CPU extends Component {
-    private String socket;
-    private int tdp;
-    private int performanceScore;
-    private boolean iGPU;
+public class GPU extends Component {
+    private final String socket;
+    private final int tdp;
+    private final int performanceScore;
 
-    public CPU(String id, String name, String brand, double price, String socket, int tdp, int performanceScore, boolean iGPU) {
+    public GPU(String id, String name, String brand, double price, String socket, int tdp, int performanceScore) {
         super(id, name, brand, price);
         this.socket = socket;
         this.tdp = tdp;
         this.performanceScore = performanceScore;
-        this.iGPU = iGPU;
     }
 
     public String getSocket() {
@@ -24,13 +22,10 @@ public class CPU extends Component {
         return performanceScore;
     }
 
-    public boolean hasIGPU() {
-        return iGPU;
-    }
 
     @Override
     public String getSpecs() {
-        return "Socket: " + socket + " | TDP: " + tdp + "W" + " | Score: " + performanceScore + " | Integrated Graphics: " + iGPU;
+        return "Socket: " + socket + " | TDP: " + tdp + "W" + " | Score: " + performanceScore;
     }
 
     @Override
