@@ -54,7 +54,7 @@ public class CompatibilityChecker {
         }
         
         String mbFormFactor = build.getMotherboard().getFormFactor();
-        String[] supportedFactors = build.getPcCase().getSupportedFormFactors();
+        List<String> supportedFactors = build.getPcCase().getSupportedFormFactors();
         
         if (mbFormFactor == null || supportedFactors == null) return false;
         
