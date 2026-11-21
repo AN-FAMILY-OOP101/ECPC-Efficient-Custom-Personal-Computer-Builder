@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class CompatibilityChecker {
 
     // Main method: Runs each part's check and the build-level power check
@@ -84,7 +86,7 @@ public class CompatibilityChecker {
 
     // Validates that power supply wattage covers estimated power draw with a safety margin
     public boolean checkPowerSufficiency(PCBuild build) {
-        if (build.getPsu() == null) {
+        if (build.getPowerSupply() == null) {
             return false;
         }
         
@@ -103,7 +105,7 @@ public class CompatibilityChecker {
         // Base system overhead (Motherboard, RAM, SSD, fans ~ 75W)
         totalEstimatedDraw += 75;
         
-        int psuWattage = build.getPsu().getWattage();
+        int psuWattage = build.getPowerSupply().getWattage();
         
         // Apply a recommended PSU safety headroom factor (total load should not exceed 80% of PSU rated wattage, 
         // or PSU must comfortably exceed estimated power draw by at least a safety margin)
