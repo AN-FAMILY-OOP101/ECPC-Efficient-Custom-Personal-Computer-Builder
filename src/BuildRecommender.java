@@ -1,223 +1,396 @@
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
 
+/**
+ * Generates a complete, compatible PC build based on workload priorities
+ * and the user's requested budget range.
+ */
 public class BuildRecommender {
 
-    public enum Workload {
-        SCHOOLWORK,
-        GAMING,
-        VIDEO_EDITING
-    }
+    private static final double PSU_SAFETY_MULTIPLIER = 1.25;
+    private static final int BASE_SYSTEM_WATTAGE = 75;
+    private static final double SCORE_TIE_TOLERANCE = 0.0000001;
 
     private final PartCatalog catalog;
     private PCBuild recommendedBuild;
 
     public BuildRecommender(PartCatalog catalog) {
         if (catalog == null) {
-            throw new IllegalArgumentException("Catalog cannot be null.");
+            throw new InvalidInputException("Catalog cannot be null.");
         }
-
         this.catalog = catalog;
     }
 
+    /**
+     * Finds the highest-scoring compatible build whose total price is within
+     * the inclusive minimum and maximum budget.
+     */
     public PCBuild generateBuild(double minBudget, double maxBudget,
                                  Workload workload, String preferredBrand) {
 
-        if (minBudget < 0 || maxBudget <= 0 || minBudget > maxBudget) {
-            throw new IllegalArgumentException("Invalid budget range.");
-        }
+        // Clear the previous result first, so a failed request cannot expose a stale build.
+        recommendedBuild = null;
+
+        validateBudgetRange(minBudget, maxBudget);
 
         if (workload == null) {
-            throw new IllegalArgumentException("Workload cannot be null.");
+            throw new InvalidInputException("Workload cannot be null.");
         }
 
-        double cpuShare;
-        double gpuShare;
-        double motherboardShare;
-        double ramShare;
-        double storageShare;
-        double psuShare;
-        double caseShare;
+        List<CPU> cpus = catalog.getPartsByType(CPU.class);
+        List<GPU> gpus = catalog.getPartsByType(GPU.class);
+        List<Motherboard> motherboards = catalog.getPartsByType(Motherboard.class);
+        List<RAM> memoryOptions = catalog.getPartsByType(RAM.class);
+        List<Storage> storageOptions = catalog.getPartsByType(Storage.class);
+        List<PowerSupply> powerSupplies = catalog.getPartsByType(PowerSupply.class);
+        List<PCCase> cases = catalog.getPartsByType(PCCase.class);
 
-        switch (workload) {
-            case GAMING:
-                cpuShare = 0.18;
-                gpuShare = 0.30;
-                motherboardShare = 0.14;
-                ramShare = 0.12;
-                storageShare = 0.08;
-                psuShare = 0.10;
-                caseShare = 0.08;
-                break;
-
-            case VIDEO_EDITING:
-                cpuShare = 0.24;
-                gpuShare = 0.22;
-                motherboardShare = 0.14;
-                ramShare = 0.16;
-                storageShare = 0.10;
-                psuShare = 0.08;
-                caseShare = 0.06;
-                break;
-
-            default:
-                cpuShare = 0.20;
-                gpuShare = 0.08;
-                motherboardShare = 0.16;
-                ramShare = 0.14;
-                storageShare = 0.12;
-                psuShare = 0.12;
-                caseShare = 0.12;
-                break;
+        if (cpus.isEmpty() || gpus.isEmpty() || motherboards.isEmpty()
+                || memoryOptions.isEmpty() || storageOptions.isEmpty()
+                || powerSupplies.isEmpty() || cases.isEmpty()) {
+            throw new IncompleteBuildException(
+                    "The catalog must contain a CPU, GPU, motherboard, RAM, storage, power supply, and PC case.");
         }
 
-        PCBuild build = new PCBuild();
+        ScoreRanges ranges = new ScoreRanges(
+                minimumCpuScore(cpus), maximumCpuScore(cpus),
+                minimumGpuScore(gpus), maximumGpuScore(gpus),
+                minimumRamCapacity(memoryOptions), maximumRamCapacity(memoryOptions),
+                minimumRamSpeed(memoryOptions), maximumRamSpeed(memoryOptions),
+                minimumStorageCapacity(storageOptions), maximumStorageCapacity(storageOptions));
 
-        CPU cpu = selectBestValuePart(
-                CPU.class, maxBudget * cpuShare,
-                part -> part.getPerformanceScore(),
-                part -> true, preferredBrand
-        );
+        CompatibilityChecker checker = new CompatibilityChecker();
 
-        GPU gpu = selectBestValuePart(
-                GPU.class, maxBudget * gpuShare,
-                part -> part.getPerformanceScore(),
-                part -> true, preferredBrand
-        );
+        CPU bestCpu = null;
+        GPU bestGpu = null;
+        Motherboard bestMotherboard = null;
+        RAM bestRam = null;
+        Storage bestStorage = null;
+        PowerSupply bestPowerSupply = null;
+        PCCase bestCase = null;
 
-        if (cpu == null || gpu == null) {
-            throw new IllegalStateException(
-                    "No suitable CPU or GPU found within the allocated budget."
-            );
+        double bestScore = Double.NEGATIVE_INFINITY;
+        double bestTotal = Double.POSITIVE_INFINITY;
+        boolean foundCompatibleCombination = false;
+
+        double cpuWeight = getCpuWeight(workload);
+        double gpuWeight = getGpuWeight(workload);
+        double ramWeight = getRamWeight(workload);
+        double storageWeight = getStorageWeight(workload);
+        String brandPreference = normalizeBrand(preferredBrand);
+
+        /*
+         * Search all catalog candidates. Compatibility checks are applied before
+         * scoring, and no fixed top-eight candidate limit is used.
+         */
+        for (CPU cpu : cpus) {
+            for (GPU gpu : gpus) {
+                int requiredPsuWattage = (int) Math.ceil(
+                        (BASE_SYSTEM_WATTAGE + cpu.getTdp() + gpu.getPowerWatts())
+                                * PSU_SAFETY_MULTIPLIER);
+
+                for (Motherboard motherboard : motherboards) {
+                    if (!same(cpu.getSocket(), motherboard.getSocket())) {
+                        continue;
+                    }
+
+                    for (RAM ram : memoryOptions) {
+                        if (!same(ram.getMemoryType(), motherboard.getRamType())
+                                || ram.getCapacityGB() > motherboard.getMaxRamGb()) {
+                            continue;
+                        }
+
+                        double corePrice = cpu.getPrice() + gpu.getPrice()
+                                + motherboard.getPrice() + ram.getPrice();
+
+                        double coreScore = getCpuScore(cpu, ranges) * cpuWeight
+                                + getGpuScore(gpu, ranges) * gpuWeight
+                                + getRamScore(ram, ranges) * ramWeight;
+
+                        double brandScore = getBrandBonus(cpu, brandPreference, cpuWeight)
+                                + getBrandBonus(gpu, brandPreference, gpuWeight)
+                                + getBrandBonus(ram, brandPreference, ramWeight)
+                                + getBrandBonus(motherboard, brandPreference, 0.01);
+
+                        for (Storage storage : storageOptions) {
+                            double partialPrice = corePrice + storage.getPrice();
+
+                            double score = coreScore
+                                    + getStorageScore(storage, ranges) * storageWeight
+                                    + brandScore
+                                    + getBrandBonus(storage, brandPreference, storageWeight);
+
+                            for (PowerSupply powerSupply : powerSupplies) {
+                                if (powerSupply.getWattage() < requiredPsuWattage) {
+                                    continue;
+                                }
+
+                                double priceWithPsu = partialPrice + powerSupply.getPrice();
+
+                                for (PCCase pcCase : cases) {
+                                    if (!supports(pcCase, motherboard.getFormFactor())
+                                            || gpu.getLengthMm() > pcCase.getMaxGpuLengthMm()) {
+                                        continue;
+                                    }
+
+                                    foundCompatibleCombination = true;
+                                    double total = priceWithPsu + pcCase.getPrice();
+                                    if (total < minBudget || total > maxBudget) {
+                                        continue;
+                                    }
+
+                                    double candidateScore = score
+                                            + getBrandBonus(powerSupply, brandPreference, 0.01)
+                                            + getBrandBonus(pcCase, brandPreference, 0.01);
+
+                                    boolean betterScore = candidateScore > bestScore + SCORE_TIE_TOLERANCE;
+                                    boolean equalScoreButCheaper =
+                                            Math.abs(candidateScore - bestScore) <= SCORE_TIE_TOLERANCE
+                                                    && total < bestTotal;
+
+                                    if (betterScore || equalScoreButCheaper) {
+                                        bestScore = candidateScore;
+                                        bestTotal = total;
+                                        bestCpu = cpu;
+                                        bestGpu = gpu;
+                                        bestMotherboard = motherboard;
+                                        bestRam = ram;
+                                        bestStorage = storage;
+                                        bestPowerSupply = powerSupply;
+                                        bestCase = pcCase;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        Motherboard motherboard = selectBestValuePart(
-                Motherboard.class, maxBudget * motherboardShare,
-                part -> 1,
-                part -> part.getSocket().equalsIgnoreCase(cpu.getSocket()),
-                preferredBrand
-        );
-
-        if (motherboard == null) {
-            throw new IllegalStateException(
-                    "No compatible motherboard found for the selected CPU."
-            );
+        if (bestCpu == null) {
+            if (!foundCompatibleCombination) {
+                throw new IncompatibleComponentException(
+                        "The catalog does not contain a fully compatible combination of all required components.");
+            }
+            throw new BudgetExceededException(String.format(
+                    "No complete compatible build was found within PHP %.2f to PHP %.2f.",
+                    minBudget, maxBudget));
         }
 
-        RAM ram = selectBestValuePart(
-                RAM.class, maxBudget * ramShare,
-                part -> 1,
-                part -> part.getMemoryType().equalsIgnoreCase(motherboard.getRamType())
-                        && part.getCapacityGB() <= motherboard.getMaxRamGb(),
-                preferredBrand
-        );
+        PCBuild result = new PCBuild("Recommended Build");
+        result.setCpu(bestCpu);
+        result.setGpu(bestGpu);
+        result.setMotherboard(bestMotherboard);
+        result.setRam(bestRam);
+        result.setStorage(bestStorage);
+        result.setPowerSupply(bestPowerSupply);
+        result.setPcCase(bestCase);
 
-        if (ram == null) {
-            throw new IllegalStateException(
-                    "No compatible RAM found for the selected motherboard."
-            );
-        }
+        result.validateCompleteBuild();
+        result.validateBudget(minBudget, maxBudget);
+        result.validateCompatibility(checker);
 
-        PCCase pcCase = selectBestValuePart(
-                PCCase.class, maxBudget * caseShare,
-                part -> 1,
-                part -> part.getSupportedFormFactors().stream()
-                        .anyMatch(form -> form.equalsIgnoreCase(motherboard.getFormFactor()))
-                        && part.getMaxGpuLengthMm() >= gpu.getLengthMm(),
-                preferredBrand
-        );
-
-        if (pcCase == null) {
-            throw new IllegalStateException(
-                    "No case supports the selected motherboard and GPU."
-            );
-        }
-
-        int requiredWattage = cpu.getTdp() + gpu.getPowerWatts() + 150;
-
-        PowerSupply powerSupply = selectBestValuePart(
-                PowerSupply.class, maxBudget * psuShare,
-                part -> 1,
-                part -> part.getWattage() >= requiredWattage,
-                preferredBrand
-        );
-
-        if (powerSupply == null) {
-            throw new IllegalStateException(
-                    "No power supply with sufficient wattage was found."
-            );
-        }
-
-        Storage storage = selectBestValuePart(
-                Storage.class, maxBudget * storageShare,
-                part -> 1,
-                part -> true, preferredBrand
-        );
-
-        if (storage == null) {
-            throw new IllegalStateException("No storage device was found.");
-        }
-
-        build.setCpu(cpu);
-        build.setGpu(gpu);
-        build.setMotherboard(motherboard);
-        build.setRam(ram);
-        build.setStorage(storage);
-        build.setPowerSupply(powerSupply);
-        build.setPcCase(pcCase);
-
-        if (build.getTotalPrice() > maxBudget) {
-            throw new IllegalStateException(
-                    "The recommended build exceeds the maximum budget."
-            );
-        }
-
-        if (build.getTotalPrice() < minBudget) {
-            throw new IllegalStateException(
-                    "The recommended build is below the minimum budget."
-            );
-        }
-
-        recommendedBuild = build;
+        recommendedBuild = result;
         return recommendedBuild;
     }
 
-    public <T extends Component> T selectBestValuePart(
-            Class<T> type,
-            double priceLimit,
-            ToDoubleFunction<T> valueFunction,
-            Predicate<T> condition,
-            String preferredBrand) {
-
-        List<T> parts = catalog.getPartsByType(type);
-        T bestPart = null;
-        double bestValue = -1;
-
-        for (T part : parts) {
-            if (part.getPrice() > priceLimit || !condition.test(part)) {
-                continue;
-            }
-
-            double value = valueFunction.applyAsDouble(part)
-                    / Math.max(part.getPrice(), 1);
-
-            if (preferredBrand != null
-                    && !preferredBrand.trim().isEmpty()
-                    && part.getBrand().equalsIgnoreCase(preferredBrand.trim())) {
-                value *= 1.10;
-            }
-
-            if (value > bestValue) {
-                bestValue = value;
-                bestPart = part;
-            }
+    private void validateBudgetRange(double minBudget, double maxBudget) {
+        if (!Double.isFinite(minBudget) || !Double.isFinite(maxBudget)
+                || minBudget < 0 || maxBudget <= 0 || minBudget > maxBudget) {
+            throw new InvalidInputException("Please enter a valid budget range.");
         }
-
-        return bestPart;
     }
 
+    private double getCpuWeight(Workload workload) {
+        switch (workload) {
+            case GAMING: return 0.25;
+            case VIDEO_EDITING: return 0.40;
+            case SCHOOLWORK:
+            default: return 0.30;
+        }
+    }
+
+    private double getGpuWeight(Workload workload) {
+        switch (workload) {
+            case GAMING: return 0.50;
+            case VIDEO_EDITING: return 0.20;
+            case SCHOOLWORK:
+            default: return 0.10;
+        }
+    }
+
+    private double getRamWeight(Workload workload) {
+        switch (workload) {
+            case GAMING: return 0.15;
+            case VIDEO_EDITING: return 0.25;
+            case SCHOOLWORK:
+            default: return 0.30;
+        }
+    }
+
+    private double getStorageWeight(Workload workload) {
+        switch (workload) {
+            case GAMING: return 0.10;
+            case VIDEO_EDITING: return 0.15;
+            case SCHOOLWORK:
+            default: return 0.30;
+        }
+    }
+
+    private double getCpuScore(CPU cpu, ScoreRanges ranges) {
+        return normalize(cpu.getPerformanceScore(), ranges.minCpu, ranges.maxCpu);
+    }
+
+    private double getGpuScore(GPU gpu, ScoreRanges ranges) {
+        return normalize(gpu.getPerformanceScore(), ranges.minGpu, ranges.maxGpu);
+    }
+
+    private double getRamScore(RAM ram, ScoreRanges ranges) {
+        double capacityScore = normalize(
+                ram.getCapacityGB(), ranges.minRamCapacity, ranges.maxRamCapacity);
+        double speedScore = normalize(
+                ram.getSpeedMHz(), ranges.minRamSpeed, ranges.maxRamSpeed);
+        return capacityScore * 0.70 + speedScore * 0.30;
+    }
+
+    private double getStorageScore(Storage storage, ScoreRanges ranges) {
+        double capacityScore = normalize(
+                storage.getCapacityGB(), ranges.minStorageCapacity, ranges.maxStorageCapacity);
+        double typeScore = storage.getStorageType() != null
+                && storage.getStorageType().toUpperCase().contains("SSD") ? 1.0 : 0.0;
+        double interfaceScore = storage.getInterfaceType() != null
+                && storage.getInterfaceType().toUpperCase().contains("NVME") ? 1.0 : 0.0;
+        return capacityScore * 0.70 + typeScore * 0.20 + interfaceScore * 0.10;
+    }
+
+    private double getBrandBonus(Component part, String preferredBrand, double weight) {
+        if (preferredBrand == null || preferredBrand.isEmpty()
+                || part.getBrand() == null
+                || !part.getBrand().equalsIgnoreCase(preferredBrand)) {
+            return 0.0;
+        }
+        // A small preference bonus; performance remains the primary factor.
+        return weight * 0.02;
+    }
+
+    private double normalize(double value, double minimum, double maximum) {
+        if (maximum <= minimum) {
+            return 1.0;
+        }
+        return (value - minimum) / (maximum - minimum);
+    }
+
+    private boolean same(String first, String second) {
+        return first != null && second != null && first.equalsIgnoreCase(second);
+    }
+
+    private boolean supports(PCCase pcCase, String formFactor) {
+        if (pcCase.getSupportedFormFactors() == null || formFactor == null) {
+            return false;
+        }
+        for (String supported : pcCase.getSupportedFormFactors()) {
+            if (same(supported, formFactor)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String normalizeBrand(String brand) {
+        return brand == null ? null : brand.trim();
+    }
+
+    private int minimumCpuScore(List<CPU> parts) {
+        int value = Integer.MAX_VALUE;
+        for (CPU part : parts) value = Math.min(value, part.getPerformanceScore());
+        return value;
+    }
+
+    private int maximumCpuScore(List<CPU> parts) {
+        int value = Integer.MIN_VALUE;
+        for (CPU part : parts) value = Math.max(value, part.getPerformanceScore());
+        return value;
+    }
+
+    private int minimumGpuScore(List<GPU> parts) {
+        int value = Integer.MAX_VALUE;
+        for (GPU part : parts) value = Math.min(value, part.getPerformanceScore());
+        return value;
+    }
+
+    private int maximumGpuScore(List<GPU> parts) {
+        int value = Integer.MIN_VALUE;
+        for (GPU part : parts) value = Math.max(value, part.getPerformanceScore());
+        return value;
+    }
+
+    private int minimumRamCapacity(List<RAM> parts) {
+        int value = Integer.MAX_VALUE;
+        for (RAM part : parts) value = Math.min(value, part.getCapacityGB());
+        return value;
+    }
+
+    private int maximumRamCapacity(List<RAM> parts) {
+        int value = Integer.MIN_VALUE;
+        for (RAM part : parts) value = Math.max(value, part.getCapacityGB());
+        return value;
+    }
+
+    private int minimumRamSpeed(List<RAM> parts) {
+        int value = Integer.MAX_VALUE;
+        for (RAM part : parts) value = Math.min(value, part.getSpeedMHz());
+        return value;
+    }
+
+    private int maximumRamSpeed(List<RAM> parts) {
+        int value = Integer.MIN_VALUE;
+        for (RAM part : parts) value = Math.max(value, part.getSpeedMHz());
+        return value;
+    }
+
+    private int minimumStorageCapacity(List<Storage> parts) {
+        int value = Integer.MAX_VALUE;
+        for (Storage part : parts) value = Math.min(value, part.getCapacityGB());
+        return value;
+    }
+
+    private int maximumStorageCapacity(List<Storage> parts) {
+        int value = Integer.MIN_VALUE;
+        for (Storage part : parts) value = Math.max(value, part.getCapacityGB());
+        return value;
+    }
+
+    /** Returns the most recently generated build, or null if the last attempt failed. */
     public PCBuild getRecommendedBuild() {
         return recommendedBuild;
+    }
+
+    private static class ScoreRanges {
+        private final double minCpu;
+        private final double maxCpu;
+        private final double minGpu;
+        private final double maxGpu;
+        private final double minRamCapacity;
+        private final double maxRamCapacity;
+        private final double minRamSpeed;
+        private final double maxRamSpeed;
+        private final double minStorageCapacity;
+        private final double maxStorageCapacity;
+
+        private ScoreRanges(double minCpu, double maxCpu,
+                            double minGpu, double maxGpu,
+                            double minRamCapacity, double maxRamCapacity,
+                            double minRamSpeed, double maxRamSpeed,
+                            double minStorageCapacity, double maxStorageCapacity) {
+            this.minCpu = minCpu;
+            this.maxCpu = maxCpu;
+            this.minGpu = minGpu;
+            this.maxGpu = maxGpu;
+            this.minRamCapacity = minRamCapacity;
+            this.maxRamCapacity = maxRamCapacity;
+            this.minRamSpeed = minRamSpeed;
+            this.maxRamSpeed = maxRamSpeed;
+            this.minStorageCapacity = minStorageCapacity;
+            this.maxStorageCapacity = maxStorageCapacity;
+        }
     }
 }
