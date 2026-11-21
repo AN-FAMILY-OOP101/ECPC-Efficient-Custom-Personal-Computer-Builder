@@ -5,11 +5,6 @@ import java.util.List;
 /** Generates a compatible PC build based on the user's workload and budget. */
 public class BuildRecommender {
 
-    public enum Workload {
-        SCHOOLWORK,
-        GAMING,
-        VIDEO_EDITING
-    }
 
     private static final int CANDIDATES_PER_CATEGORY = 8;
     private final PartCatalog catalog;
@@ -177,4 +172,4 @@ public class BuildRecommender {
     public PCBuild getRecommendedBuild() {
         return recommendedBuild;
     }
-        }
+            }
