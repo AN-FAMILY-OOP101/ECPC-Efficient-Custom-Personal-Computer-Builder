@@ -1,8 +1,8 @@
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Generates a complete, compatible PC build based on workload priorities
- * and the user's requested budget range.
+ * Generates a complete, compatible PC build based on workload priorities and the user's requested budget range.
  */
 public class BuildRecommender {
 
@@ -21,11 +21,9 @@ public class BuildRecommender {
     }
 
     /**
-     * Finds the highest-scoring compatible build whose total price is within
-     * the inclusive minimum and maximum budget.
+     * Finds the highest-scoring compatible build whose total price is within the inclusive minimum and maximum budget.
      */
-    public PCBuild generateBuild(double minBudget, double maxBudget,
-                                 Workload workload, String preferredBrand) {
+    public PCBuild generateBuild(double minBudget, double maxBudget, Workload workload, String preferredBrand) {
 
         // Clear the previous result first, so a failed request cannot expose a stale build.
         recommendedBuild = null;
@@ -44,11 +42,18 @@ public class BuildRecommender {
         List<PowerSupply> powerSupplies = catalog.getPartsByType(PowerSupply.class);
         List<PCCase> cases = catalog.getPartsByType(PCCase.class);
 
-        if (cpus.isEmpty() || gpus.isEmpty() || motherboards.isEmpty()
-                || memoryOptions.isEmpty() || storageOptions.isEmpty()
-                || powerSupplies.isEmpty() || cases.isEmpty()) {
+        boolean anyIntegratedGraphicsCpu = false;
+        for (CPU cpu : cpus) {
+            if (cpu.hasIGPU()) {
+                anyIntegratedGraphicsCpu = true;
+                break;
+            }
+        }
+        if (cpus.isEmpty() || (gpus.isEmpty() && !anyIntegratedGraphicsCpu)
+                || motherboards.isEmpty() || memoryOptions.isEmpty()
+                || storageOptions.isEmpty() || powerSupplies.isEmpty() || cases.isEmpty()) {
             throw new IncompleteBuildException(
-                    "The catalog must contain a CPU, GPU, motherboard, RAM, storage, power supply, and PC case.");
+                    "The catalog must contain a usable CPU/graphics option, motherboard, RAM, storage, power supply, and PC case.");
         }
 
         ScoreRanges ranges = new ScoreRanges(
@@ -79,13 +84,19 @@ public class BuildRecommender {
         String brandPreference = normalizeBrand(preferredBrand);
 
         /*
-         * Search all catalog candidates. Compatibility checks are applied before
-         * scoring, and no fixed top-eight candidate limit is used.
+         * Search all catalog candidates. Compatibility checks are applied before scoring, and no fixed top-eight candidate limit is used.
          */
         for (CPU cpu : cpus) {
-            for (GPU gpu : gpus) {
+            // CPUs with integrated graphics may be evaluated without a dedicated GPU.
+            List<GPU> gpuCandidates = new ArrayList<>();
+            if (cpu.hasIGPU()) {
+                gpuCandidates.add(null);
+            }
+            gpuCandidates.addAll(gpus);
+            for (GPU gpu : gpuCandidates) {
+                int gpuPower = gpu == null ? 0 : gpu.getPowerWatts();
                 int requiredPsuWattage = (int) Math.ceil(
-                        (BASE_SYSTEM_WATTAGE + cpu.getTdp() + gpu.getPowerWatts())
+                        (BASE_SYSTEM_WATTAGE + cpu.getTdp() + gpuPower)
                                 * PSU_SAFETY_MULTIPLIER);
 
                 for (Motherboard motherboard : motherboards) {
@@ -99,15 +110,17 @@ public class BuildRecommender {
                             continue;
                         }
 
-                        double corePrice = cpu.getPrice() + gpu.getPrice()
+                        double corePrice = cpu.getPrice() + (gpu == null ? 0 : gpu.getPrice())
                                 + motherboard.getPrice() + ram.getPrice();
 
+                        // No dedicated GPU means the system uses the CPU's integrated graphics.
+                        // The catalog has no comparable iGPU benchmark score, so no GPU score is added.
                         double coreScore = getCpuScore(cpu, ranges) * cpuWeight
-                                + getGpuScore(gpu, ranges) * gpuWeight
+                                + (gpu == null ? 0 : getGpuScore(gpu, ranges) * gpuWeight)
                                 + getRamScore(ram, ranges) * ramWeight;
 
                         double brandScore = getBrandBonus(cpu, brandPreference, cpuWeight)
-                                + getBrandBonus(gpu, brandPreference, gpuWeight)
+                                + (gpu == null ? 0 : getBrandBonus(gpu, brandPreference, gpuWeight))
                                 + getBrandBonus(ram, brandPreference, ramWeight)
                                 + getBrandBonus(motherboard, brandPreference, 0.01);
 
@@ -128,7 +141,7 @@ public class BuildRecommender {
 
                                 for (PCCase pcCase : cases) {
                                     if (!supports(pcCase, motherboard.getFormFactor())
-                                            || gpu.getLengthMm() > pcCase.getMaxGpuLengthMm()) {
+                                            || (gpu != null && gpu.getLengthMm() > pcCase.getMaxGpuLengthMm())) {
                                         continue;
                                     }
 
