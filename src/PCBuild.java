@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Represents the user's current PC build and manages its selected components.
  * A build can be assembled gradually; call validateCompleteBuild() before
- * operations that require all seven component categories.
+ * final validation. A dedicated GPU is optional when the selected CPU has an iGPU.
  */
 
 public class PCBuild {
@@ -210,7 +210,8 @@ public class PCBuild {
         if (cpu == null) missing.add("CPU");
         if (motherboard == null) missing.add("Motherboard");
         if (ram == null) missing.add("RAM");
-        if (gpu == null) missing.add("GPU");
+        // A dedicated GPU is optional only when the selected CPU has integrated graphics.
+        if (gpu == null && (cpu == null || !cpu.hasIGPU())) missing.add("GPU");
         if (storage == null) missing.add("Storage");
         if (powerSupply == null) missing.add("Power Supply");
         if (pcCase == null) missing.add("PC Case");
@@ -218,7 +219,7 @@ public class PCBuild {
         return Collections.unmodifiableList(missing);
     }
 
-    /** Throws IncompleteBuildException if any of the seven required categories is missing. */
+    /** Throws IncompleteBuildException when a required component is missing. */
     public void validateCompleteBuild() {
         List<String> missing = getMissingComponents();
         if (!missing.isEmpty()) {
