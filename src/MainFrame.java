@@ -387,7 +387,7 @@ public class MainFrame extends JFrame {
 
         addSelector(selectionPanel, constraints, "Processor (CPU)", CPU.class);
         addSelector(selectionPanel, constraints, "Motherboard", Motherboard.class);
-        addSelector(selectionPanel, constraints, "Graphics Card (GPU)", GPU.class);
+        addSelector(selectionPanel, constraints, "Graphics Card (GPU) - Optional with an iGPU CPU", GPU.class);
         addSelector(selectionPanel, constraints, "Memory (RAM)", RAM.class);
         addSelector(selectionPanel, constraints, "Storage", Storage.class);
         addSelector(selectionPanel, constraints, "Power Supply (PSU)", PowerSupply.class);
@@ -562,8 +562,8 @@ public class MainFrame extends JFrame {
         analysisArea.setText("Results will appear here.\n\n"
                 + "Compatibility checks use CompatibilityChecker.java.\n"
                 + "CPU-GPU balance uses BottleneckAnalyzer.java.\n\n"
-                + "Important: independently normalized CPU/GPU benchmark scores are a\n"
-                + "relative ECPC heuristic, not a measured gaming bottleneck percentage.");
+                + "Important: CPU Mark and G3D Mark use different benchmark scales. The\n"
+                + "pairing rating is a broad ECPC heuristic, not a measured bottleneck percentage.");
         reportPanel.add(styledScroll(analysisArea), BorderLayout.CENTER);
         workspace.add(reportPanel, BorderLayout.CENTER);
         return workspace;
@@ -669,7 +669,9 @@ public class MainFrame extends JFrame {
 
     private void refreshOverview() {
         totalPriceLabel.setText(money(currentBuild.getTotalPrice()));
-        completionLabel.setText(currentBuild.getSelectedParts().size() + " / 7 selected");
+        int requiredParts = currentBuild.getCpu() != null && currentBuild.getCpu().hasIGPU()
+                && currentBuild.getGpu() == null ? 6 : 7;
+        completionLabel.setText(currentBuild.getSelectedParts().size() + " / " + requiredParts + " selected");
         powerLabel.setText(currentBuild.getEstimatedWattage() + " W est.");
 
         List<String> missingComponents = currentBuild.getMissingComponents();
@@ -829,23 +831,34 @@ public class MainFrame extends JFrame {
 
     private void analyzeBottleneck() {
         mainTabs.setSelectedIndex(2);
-        if (currentBuild.getCpu() == null || currentBuild.getGpu() == null) {
-            analysisArea.setText("CPU-GPU BALANCE ANALYSIS\n\n"
-                    + "Select both a CPU and a GPU before running this analysis.");
+        if (currentBuild.getCpu() == null) {
+            analysisArea.setText("CPU-GPU BALANCE ANALYSIS\n\nSelect a CPU first.");
+            return;
+        }
+        if (currentBuild.getGpu() == null) {
+            if (currentBuild.getCpu().hasIGPU()) {
+                analysisArea.setText("CPU-GPU BALANCE ANALYSIS\n\n"
+                        + "No dedicated GPU is selected. The system will use the CPU's integrated graphics.\n"
+                        + "A dedicated CPU-GPU balance estimate is not applicable.");
+            } else {
+                analysisArea.setText("CPU-GPU BALANCE ANALYSIS\n\n"
+                        + "This CPU does not have integrated graphics. Select a dedicated GPU to analyze the pairing.");
+            }
             return;
         }
         Workload workload =
                 (Workload) workloadSelector.getSelectedItem();
         BottleneckAnalyzer analyzer = new BottleneckAnalyzer(
                 currentBuild.getCpu().getPerformanceScore(),
-                currentBuild.getGpu().getPerformanceScore(), readableWorkload(workload));
+                currentBuild.getGpu().getPerformanceScore(), workload);
         analysisArea.setText("CPU-GPU BALANCE ESTIMATE\n\n"
                 + "CPU: " + currentBuild.getCpu().getName() + "\n"
                 + "GPU: " + currentBuild.getGpu().getName() + "\n\n"
                 + analyzer.getBottleneckReport() + "\n\n"
-                + "IMPORTANT: These results compare independently normalized benchmark scores. "
-                + "They are an ECPC heuristic, not a measured real-world bottleneck percentage. "
-                + "Performance can vary by application, resolution, and settings.");
+                + "IMPORTANT: This is a broad pairing estimate based on CPU Mark and G3D Mark scores. "
+                + "These are different benchmark scales, so the result is not a measured real-world "
+                + "bottleneck percentage. Actual performance varies by game, resolution, settings, "
+                + "memory configuration, and other factors.");
         analysisArea.setCaretPosition(0);
         setFooterMessage("CPU-GPU balance estimate generated.");
     }
