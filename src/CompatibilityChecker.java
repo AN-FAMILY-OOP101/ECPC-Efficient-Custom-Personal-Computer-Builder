@@ -70,9 +70,9 @@ public class CompatibilityChecker {
 
     // Verifies GPU length against the PC Case clearance limit
     public boolean checkGpuClearance(PCBuild build) {
-        // If the build doesn't include a dedicated GPU (using integrated graphics), pass clearance
+        // A missing dedicated GPU is valid only when the CPU supplies integrated graphics.
         if (build.getGpu() == null) {
-            return true;
+            return build.getCpu() != null && build.getCpu().hasIGPU();
         }
         if (build.getPcCase() == null) {
             return false;
@@ -133,7 +133,13 @@ public class CompatibilityChecker {
             if (!socket) report.append("- CPU and Motherboard sockets do not match.\n");
             if (!ram) report.append("- RAM type mismatch or capacity exceeds motherboard limit.\n");
             if (!formFactor) report.append("- Motherboard form factor does not fit the selected PC case.\n");
-            if (!gpuLength) report.append("- GPU length exceeds the case's maximum clearance limit.\n");
+            if (!gpuLength) {
+                if (build.getGpu() == null) {
+                    report.append("- A dedicated GPU is required because the selected CPU has no integrated graphics.\n");
+                } else {
+                    report.append("- GPU length exceeds the case's maximum clearance limit.\n");
+                }
+            }
             if (!power) report.append("- Power Supply wattage is insufficient for estimated system power draw.\n");
             return report.toString().trim();
         }
