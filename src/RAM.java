@@ -28,8 +28,4 @@ public class RAM extends Component {
         return capacityGB + "GB " + memoryType + ", " + speedMHz + "MHz";
     }
 
-    @Override
-    public boolean checkCompatibility(Object build) {
-        return false;
-    }
 }

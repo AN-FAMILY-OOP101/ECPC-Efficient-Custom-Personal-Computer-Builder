@@ -25,9 +25,4 @@ public class PCCase extends Component {
         return "Supported Form Factors: " + supportedFormFactors + " | Max GPU Length: " + maxGpuLengthMm + "mm";
     }
 
-    @Override
-    public boolean checkCompatibility(Object build) {
-
-        return true;
-    }
 }

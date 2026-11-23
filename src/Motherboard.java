@@ -23,10 +23,4 @@ public class Motherboard extends Component {
     public String getSpecs() {
         return "Socket: " + socket + " | RAM: " + ramType + " (Max " + maxRamGb + "GB) | Form Factor: " + formFactor;
     }
-
-    @Override
-    public boolean checkCompatibility(Object build) {
-        
-        return true;
-    }
 }

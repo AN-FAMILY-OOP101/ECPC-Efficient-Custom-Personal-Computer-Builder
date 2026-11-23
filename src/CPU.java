@@ -23,10 +23,4 @@ public class CPU extends Component {
     public String getSpecs() {
         return "Socket: " + socket + " | TDP: " + tdp + "W | Score: " + performanceScore + " | Integrated Graphics: " + hasIGPU;
     }
-
-    // checks if the CPU matches the motherboard socket
-    @Override
-    public boolean checkCompatibility(Object build) {
-        return true;
-    }
 }

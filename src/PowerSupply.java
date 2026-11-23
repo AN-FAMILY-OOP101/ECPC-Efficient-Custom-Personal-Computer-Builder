@@ -27,9 +27,4 @@ public class PowerSupply extends Component {
         return wattage + "W" + " | Efficiency Rating: " + efficiencyRating + " | Modularity: " + modularity;
     }
 
-    @Override
-    public boolean checkCompatibility(Object build) {
-        // Placeholder: actual compatibility checking is handled by CompatibilityChecker.
-        return false;
-    }
 }

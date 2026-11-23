@@ -14,10 +14,12 @@ public class Main {
 
     public static void main(String[] arguments) {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         } catch (Exception ignored) {
             // The default Swing appearance is a safe fallback.
         }
+
+        MainFrame.installTheme();
 
         SwingUtilities.invokeLater(() -> {
             PartCatalog catalog = new PartCatalog();

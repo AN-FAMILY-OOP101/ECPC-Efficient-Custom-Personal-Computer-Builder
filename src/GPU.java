@@ -32,10 +32,4 @@ public class GPU extends Component {
     public String getSpecs() {
         return "VRAM: " + vramGB + "GB | Power: " + powerWatts + "W | Score: " + performanceScore + " | Length: " + lengthMm + "mm";
     }
-
-    @Override
-    public boolean checkCompatibility(Object build) {
-        // Compatibility validation is handled by CompatibilityChecker.
-        return true;
-    }
 }

@@ -27,9 +27,4 @@ public class Storage extends Component {
     public String getSpecs() {
         return capacityGB + "GB " + storageType + ", Interface: " + interfaceType;
     }
-
-    @Override
-    public boolean checkCompatibility(Object build) {
-        return false;
-    }
 }

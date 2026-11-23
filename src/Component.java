@@ -21,5 +21,4 @@ public abstract class Component {
 
     // Polymorphism
     public abstract String getSpecs();
-    public abstract boolean checkCompatibility(Object build);
 }
