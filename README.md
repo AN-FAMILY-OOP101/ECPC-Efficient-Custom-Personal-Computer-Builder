@@ -17,7 +17,7 @@
 ## 📖 About the Project
 Building a custom personal computer is a technical task that can be overwhelming for beginners. Choosing incompatible parts or mismanaging your budget leads to wasted time, money, and hardware performance bottlenecks. 
 
-**ECPC (Efficient Custom Personal Computer Builder)** is a Java-based console application designed to help students, first-time PC builders, and hobbyists plan, validate, and optimize custom PC builds based on budget, intended workload (schoolwork, gaming, or video editing), and brand preferences.
+**ECPC (Efficient Custom Personal Computer Builder)** is a Java-based gui application designed to help students, first-time PC builders, and hobbyists plan, validate, and optimize custom PC builds based on budget, intended workload (schoolwork, gaming, or video editing), and brand preferences.
 
 ---
 
@@ -64,7 +64,16 @@ To develop a Java-based application that guides users in designing a compatible 
 ---
 
 ## 🛠️ Technologies Used
-* **Programming Language:** Java 
+* **Programming Language:** Java
+* **GUI Framework:** Java Swing
+* **Data Format:** JSON (for storing PC component information)
+* **Development Environment:** Visual Studio Code (VS Code)
+* **Version Control:** Git and GitHub
+* **Java Development Kit (JDK):** JDK 21
+* **Compilation Tool:** Java Compiler (javac)
+* **Application Packaging Tool:** Java Archive Tool (jar)
+* **Application Distribution Format:** Executable JAR (.jar)
+* **File Handling:** Java I/O and NIO (for saving and loading custom PC builds)
 
 ---
 
@@ -113,7 +122,16 @@ To develop a Java-based application that guides users in designing a compatible 
 ---
 
 ## 🔮 Future Improvements
-* 
+Although ECPC already provides essential PC building and recommendation functionalities, several improvements can be considered for future versions:
+
+* **Expanded Component Database:** Include more PC components, brands, models, and updated hardware specifications to provide users with a wider range of choices.
+* **More Accurate Bottleneck Analysis:** Improve the analysis algorithm by incorporating more realistic performance data, workload-specific calculations, and benchmark information.
+* **Advanced Compatibility Checking:** Expand compatibility validation to cover additional hardware specifications and requirements, ensuring more accurate component recommendations.
+* **Improved Build Recommendations:** Enhance the recommendation algorithm to consider more factors, such as component performance, price-to-performance ratio, upgrade potential, and user preferences.
+* **Price Updates and Comparison:** Introduce updated component pricing and price comparisons from different retailers to help users make more cost-effective decisions.
+* **Build Exporting and Sharing:** Allow users to export their PC configurations into formats such as PDF or share their builds with other users.
+* **Enhanced User Interface:** Further improve the graphical interface with additional customization options, better navigation, and a more user-friendly experience.
+* **User Accounts and Build History:** Introduce user accounts that allow users to save multiple PC configurations and access their previous builds.
 
 ---
 
