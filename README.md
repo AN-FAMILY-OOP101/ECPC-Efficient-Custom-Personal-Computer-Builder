@@ -312,11 +312,9 @@ The project is organized into dedicated folders to keep the source code, resourc
 
 ## 👷 Team Members & Roles
 
-| Team Member | Role | Assigned Tasks |
-| :--- | :--- | :--- |
-| **Palma, Tristan P.** | Project Leader | Coordinates tasks, monitors deadlines, communicates with the instructor, and facilitates team meetings. |
-| **Carandang, Sean Christ Trez' Davidoff A.** | Lead Programmer | Coordinates the implementation of Java classes, methods, and OOP features. |
-| **Palor, Christian Gene C.** | System / Design Lead | Develops system requirements, class designs, UML diagrams, and overall application structure. |
+<p align="center">
+  <img src="static/ecpc-team.svg" alt="An Family — Team Members & Roles" width="100%" />
+</p>
 
 ---
 
