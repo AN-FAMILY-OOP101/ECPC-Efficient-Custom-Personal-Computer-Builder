@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="static/ecpc-bios.svg" alt="ECPC — Build right the first time." width="100%" />
+</p>
+
 <div align="center">
 
 # 🖥️ ECPC: Efficient Custom Personal Computer Builder
@@ -7,7 +11,7 @@
 *OOP 101: Object-Oriented Programming (1st Semester, AY 2026-2027)*
 
 [![Java](https://img.shields.io/badge/Language-Java-orange.svg)](https://www.oracle.com/java/)
-[![Status](https://img.shields.io/badge/Status-In%20Development-blue.svg)]()
+[![Status](https://img.shields.io/badge/Status-Latest%20v1.0.0-blue.svg)]()
 [![Section](https://img.shields.io/badge/Section-CS%202101-green.svg)]()
 
 </div>
@@ -79,16 +83,230 @@ To develop a Java-based application that guides users in designing a compatible 
 
 ## 🧱 OOP Concepts Demonstrated
 
-## 🧩 9. OOP Concepts Demonstrated
+<table>
+  <thead>
+    <tr>
+      <th>Principle</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Classes and Objects</strong></td>
+      <td>Defines blueprints for hardware and system logic (such as <code>Component</code>, <code>CPU</code>, <code>Motherboard</code>, <code>GPU</code>, <code>RAM</code>, <code>Storage</code>, <code>PowerSupply</code>, <code>PCCase</code>, <code>PCBuild</code>, and <code>PartCatalog</code>), with objects representing individual catalog parts, the user's current build, and generated reports.</td>
+    </tr>
+    <tr>
+      <td><strong>Methods</strong></td>
+      <td>Encapsulates core operations including calculating total costs and estimated wattage (<code>PCBuild</code>), running compatibility checks (<code>CompatibilityChecker</code>), computing CPU-GPU balance (<code>BottleneckAnalyzer</code>), and generating recommended builds (<code>BuildRecommender</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>Encapsulation</strong></td>
+      <td>
+        Keeps attributes like price, socket type, wattage, dimensions, and performance scores private and accessed via public getters, while catalog parts have no setters to prevent modification after loading and build updates pass through validating methods like <code>addComponent()</code>.<br><br>
+        <details>
+          <summary><kbd>View Sample Code</kbd></summary>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+<pre lang="java">
+public abstract class Component {
+    private final String id;
+    private final String name;
+    private final String brand;
+    private final double price;
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getBrand() { return brand; }
+    public double getPrice() { return price; }
+}
+</pre>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Inheritance</strong></td>
+      <td>
+        Uses the abstract class <code>Component</code> to hold shared attributes (<code>ID</code>, <code>name</code>, <code>brand</code>, <code>price</code>), which <code>CPU</code>, <code>Motherboard</code>, <code>GPU</code>, <code>RAM</code>, <code>Storage</code>, <code>PowerSupply</code>, and <code>PCCase</code> extend to add their own specifications and avoid repeated code.<br><br>
+        <details>
+          <summary><kbd>View Sample Code</kbd></summary>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+<pre lang="java">
+public class CPU extends Component {
+    private final String socket;
+    private final int tdp;
+    private final int performanceScore;
+    private final boolean hasIGPU;
+    public CPU(String id, String name, String brand, double price,
+               String socket, int tdp, int performanceScore, boolean hasIGPU) {
+        super(id, name, brand, price);
+        this.socket = socket;
+        this.tdp = tdp;
+        this.performanceScore = performanceScore;
+        this.hasIGPU = hasIGPU;
+    }
+}
+</pre>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Polymorphism</strong></td>
+      <td>
+        Handles all parts uniformly as <code>Component</code> objects (such as storing them in a single list and displaying them in a single loop) while each subclass overrides <code>getSpecs()</code> with specialized behavior.<br><br>
+        <details>
+          <summary><kbd>View Sample Code</kbd></summary>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+<pre lang="java">
+// CPU.java
+@Override
+public String getSpecs() {
+    return "Socket: " + socket + " | TDP: " + tdp + "W | Score: " + performanceScore + " | Integrated Graphics: " + hasIGPU;
+}
+// GPU.java
+@Override
+public String getSpecs() {
+    return "VRAM: " + vramGB + "GB | Power: " + powerWatts + "W | Score: " + performanceScore + " | Length: " + lengthMm + "mm";
+}
+</pre>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Abstraction</strong></td>
+      <td>
+        Relies on the abstract class <code>Component</code> to declare mandatory methods for every part, hiding complex calculations like wattage totals and bottleneck formulas behind simple method calls for the GUI.<br><br>
+        <details>
+          <summary><kbd>View Sample Code</kbd></summary>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+<pre lang="java">
+public abstract class Component {
+    public abstract String getSpecs();
+}
+</pre>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Exception Handling</strong></td>
+      <td>Employs custom exceptions (such as <code>IncompatibleComponentException</code>, <code>BudgetExceededException</code>, and <code>InvalidInputException</code>) alongside try-catch blocks to handle invalid inputs, incompatible parts, unfeasible budgets, and missing or corrupted files without crashing the program.</td>
+    </tr>
+    <tr>
+      <td><strong>Arrays/Data Handling</strong></td>
+      <td>Utilizes <code>ArrayList</code> collections to store the parts catalog, the components in the active build, and the collection of saved builds.</td>
+    </tr>
+  </tbody>
+</table>
 
-* **Classes and Objects:** Defines blueprints for hardware and system logic (such as `Component`, `CPU`, `Motherboard`, `GPU`, `RAM`, `Storage`, `PowerSupply`, `PCCase`, `PCBuild`, and `PartCatalog`), with objects representing individual catalog parts, the user's current build, and generated reports.
-* **Methods:** Encapsulates core operations including calculating total costs and estimated wattage (`PCBuild`), running compatibility checks (`CompatibilityChecker`), computing CPU-GPU balance (`BottleneckAnalyzer`), and generating recommended builds (`BuildRecommender`).
-* **Encapsulation:** Keeps attributes like price, socket type, wattage, dimensions, and performance scores private and accessed via public getters, while catalog parts have no setters to prevent modification after loading and build updates pass through validating methods like `addComponent()`.
-* **Inheritance:** Uses the abstract class `Component` to hold shared attributes (`ID`, `name`, `brand`, `price`), which `CPU`, `Motherboard`, `GPU`, `RAM`, `Storage`, `PowerSupply`, and `PCCase` extend to add their own specifications and avoid repeated code.
-* **Polymorphism:** Handles all parts uniformly as `Component` objects (such as storing them in a single list and displaying them in a single loop) while each subclass overrides methods like `getSpecs()` and `checkCompatibility()` with specialized behavior.
-* **Abstraction:** Relies on the abstract class `Component` to declare mandatory methods for every part, hiding complex calculations like wattage totals and bottleneck formulas behind simple method calls for the menu code.
-* **Exception Handling:** Employs custom exceptions (such as `IncompatibleComponentException`, `BudgetExceededException`, and `InvalidInputException`) alongside try-catch blocks to handle invalid inputs, incompatible parts, unfeasible budgets, and missing or corrupted files without crashing the program.
-* **Arrays/Data Handling:** Utilizes `ArrayList` collections to store the parts catalog, the components in the active build, and the collection of saved builds.
+---
+
+## 📂 Project Structure
+
+The project is organized into dedicated folders to keep the source code, resources, documentation, screenshots, and compiled application properly arranged.
+
+<table>
+  <tr>
+    <td>
+      <details>
+        <summary><kbd>🔽 Full Directory Tree — Click to Expand / Minimize</kbd></summary>
+        <br>
+<pre>
+📁 ECPC/
+│
+├── 📄 README.md
+├── 📄 .gitignore
+│
+├── 📁 docs/
+│   ├── 📄 Project-Proposal.pdf
+<details><summary>&nbsp;&nbsp;└── <kbd>🖼️ UML-DIAGRAM.png — Click to Preview</kbd></summary>
+<img src="docs/UML-DIAGRAM.png" alt="ECPC UML Diagram" width="100%">
+</details>
+├── 📁 release/
+│   └── 📦 ECPC.jar
+│
+├── 📁 screenshots/
+│   ├── 📁 auto-build/
+│   │   ├── 🖼️ autobuildinputs.PNG
+│   │   └── 🖼️ autobuildoutputs.PNG
+│   │
+│   └── 📁 manual-build/
+│       ├── 🖼️ manualbuildinputs.PNG
+│       ├── 🖼️ manualbuildcompatibilitycheck.PNG
+│       └── 🖼️ manualbuildbottleneckanalyzer.PNG
+│
+├── 📁 src/
+│   └── 📁 main/
+│       │
+│       ├── 📁 java/
+│       │   └── 📁 ecpc/
+│       │       │
+│       │       ├── 📁 components/
+│       │       │   ├── ☕ Component.java
+│       │       │   ├── ☕ CPU.java
+│       │       │   ├── ☕ GPU.java
+│       │       │   ├── ☕ Motherboard.java
+│       │       │   ├── ☕ PCCase.java
+│       │       │   ├── ☕ PowerSupply.java
+│       │       │   ├── ☕ RAM.java
+│       │       │   └── ☕ Storage.java
+│       │       │
+│       │       ├── 📁 exceptions/
+│       │       │   ├── ☕ ECPCException.java
+│       │       │   ├── ☕ BudgetExceededException.java
+│       │       │   ├── ☕ IncompatibleComponentException.java
+│       │       │   ├── ☕ IncompleteBuildException.java
+│       │       │   └── ☕ InvalidInputException.java
+│       │       │
+│       │       ├── 📁 features/
+│       │       │   ├── ☕ BottleneckAnalyzer.java
+│       │       │   ├── ☕ BuildFileManager.java
+│       │       │   ├── ☕ BuildRecommender.java
+│       │       │   ├── ☕ CompatibilityChecker.java
+│       │       │   ├── ☕ PCBuild.java
+│       │       │   ├── ☕ PartCatalog.java
+│       │       │   └── ☕ Workload.java
+│       │       │
+│       │       ├── 📁 gui/
+│       │       │   ├── ☕ ECPCTheme.java
+│       │       │   └── ☕ MainFrame.java
+│       │       │
+│       │       └── ☕ Main.java
+│       │
+│       └── 📁 resources/
+│           └── 🗃️ Components.json
+│
+└── 📁 static/
+    └── 🖼️ logo.gif
+</pre>
+      </details>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -104,12 +322,117 @@ To develop a Java-based application that guides users in designing a compatible 
 
 ## 💻 Instructions for Running the Program
 
-1. 
+<table>
+  <tr>
+    <td>
+      <details>
+        <summary><kbd>🔽 Getting Started — Click to Expand / Minimize</kbd></summary>
+        <br>
+
+## Getting Started
+
+Follow the instructions below to download and run ECPC on your computer.
+
+### 1. System Requirements
+
+- **Operating System:** Windows, macOS, or Linux
+- **Java Runtime Environment:** Java 17 or later
+- No external database or additional libraries required.
+- No IDE or Java Development Kit (JDK) is required to run the application.
+
+### 2. Install Java (If Not Installed)
+
+Download and install the Java Runtime Environment (JRE) from Eclipse Adoptium.
+
+| Java Version | Download Link |
+| --- | --- |
+| Java 17 (LTS) | [Download Java 17](https://adoptium.net/temurin/releases/?version=17) |
+| Java 21 (LTS) | [Download Java 21](https://adoptium.net/temurin/releases?version=21) |
+
+#### Installation Instructions
+
+1. Open either of the download links above.
+2. Select your operating system (Windows, macOS, or Linux).
+3. Select your system architecture (`x64` for most Windows computers).
+4. Select **JRE** as the package type.
+5. Download the appropriate installer or package.
+6. Complete the installation.
+7. On Windows, enable the option to add Java to the system `PATH` if available.
+
+For additional installation instructions, refer to the [Official Java Installation Guide](https://adoptium.net/installation).
+
+After installation, reopen Command Prompt or Terminal and verify the installation:
+
+```bash
+java -version
+```
+
+> [!NOTE]
+> You only need the Java Runtime Environment (JRE) to run ECPC. The Java Development Kit (JDK) is only necessary if you intend to compile or modify the source code.
+
+### 3. Download ECPC
+
+1. Navigate to the **Releases** section of this GitHub repository.
+2. Select the latest stable release.
+3. Locate the **Assets** section.
+4. Download `ECPC.jar`.
+5. Save the file to your preferred directory.
+
+### 4. Run the Application
+
+#### Double-Click
+
+If your operating system has Java configured to open JAR files, simply double-click `ECPC.jar` to launch the application.
+
+#### Terminal / Command Prompt
+
+Alternatively, open your terminal or Command Prompt inside the folder where you saved `ECPC.jar` and run:
+
+```bash
+java -jar ECPC.jar
+```
+
+</details>
+</td>
+</tr>
+</table>
 
 ---
 
 ## 📸 Sample Screenshots
 
+The following screenshots showcase selected features and functionalities of the ECPC application.
+
+### Manual Build
+
+#### 1. Component Selection
+Allows users to manually select PC components for their custom build.
+
+![Manual Build - Component Selection](screenshots/manual-build/manualbuildinputs.PNG)
+
+#### 2. Compatibility Check
+Displays the compatibility results of the selected PC components.
+
+![Manual Build - Compatibility Check](screenshots/manual-build/manualbuildcompatibilitycheck.PNG)
+
+#### 3. Bottleneck Analysis
+Presents the CPU-GPU balance analysis based on the selected workload.
+
+![Manual Build - Bottleneck Analysis](screenshots/manual-build/manualbuildbottleneckanalyzer.PNG)
+
+---
+
+### Automatic Build
+
+#### 1. User Inputs
+Allows users to specify their budget, intended workload, and brand preferences.
+
+![Automatic Build - User Inputs](screenshots/auto-build/autobuildinputs.PNG)
+
+#### 2. Generated Build
+Displays the recommended PC components based on the user's selected preferences and budget.
+
+![Automatic Build - Generated Results](screenshots/auto-build/autobuildoutputs.PNG)
 
 ---
 
@@ -138,3 +461,10 @@ Although ECPC already provides essential PC building and recommendation function
 ## 🗂️ Project Contributors & Repository
 * **Team Name:** An Family (Section: CS 2101)
 * **GitHub Repository:** [ECPC-Efficient-Custom-Personal-Computer-Builder](https://github.com/AN-FAMILY-OOP101/ECPC-Efficient-Custom-Personal-Computer-Builder.git)
+
+---
+
+<div align="center">
+  <img src="static/ecpc-credits.svg" alt="System Credits — Thank You, Ma'am Fatima!" width="100%" />
+</div>
+
