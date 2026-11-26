@@ -1,0 +1,254 @@
+<svg width="920" height="390" viewBox="0 0 920 390" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    
+
+    <clipPath id="cred-header">
+      <rect x="275" y="4" width="370" height="28">
+        <animate attributeName="width" values="370; 370; 0; 0; 370; 370" keyTimes="0; 0.315; 0.360; 0.420; 0.460; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    <clipPath id="cred-sub">
+      <rect x="0" y="40" width="560" height="24">
+        <animate attributeName="width" values="560; 560; 0; 0; 560; 560" keyTimes="0; 0.230; 0.270; 0.500; 0.535; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    <clipPath id="cred-l1">
+      <rect x="0" y="84" width="580" height="24">
+        <animate attributeName="width" values="580; 580; 0; 0; 580; 580" keyTimes="0; 0.195; 0.230; 0.535; 0.572; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    <clipPath id="cred-l2">
+      <rect x="0" y="108" width="580" height="24">
+        <animate attributeName="width" values="580; 580; 0; 0; 580; 580" keyTimes="0; 0.160; 0.195; 0.572; 0.608; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    <clipPath id="cred-l3">
+      <rect x="0" y="132" width="580" height="24">
+        <animate attributeName="width" values="580; 580; 0; 0; 580; 580" keyTimes="0; 0.125; 0.160; 0.608; 0.645; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    
+    <clipPath id="cred-m1">
+      <rect x="16" y="178" width="550" height="24">
+        <animate attributeName="width" values="550; 550; 0; 0; 550; 550" keyTimes="0; 0.098; 0.118; 0.652; 0.670; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    <clipPath id="cred-m2">
+      <rect x="16" y="202" width="550" height="24">
+        <animate attributeName="width" values="550; 550; 0; 0; 550; 550" keyTimes="0; 0.072; 0.098; 0.670; 0.693; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    <clipPath id="cred-m3">
+      <rect x="16" y="222" width="550" height="24">
+        <animate attributeName="width" values="550; 550; 0; 0; 550; 550" keyTimes="0; 0.046; 0.072; 0.693; 0.716; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+
+    <clipPath id="cred-m4">
+      <rect x="16" y="242" width="550" height="24">
+        <animate attributeName="width" values="550; 550; 0; 0; 550; 550" keyTimes="0; 0.020; 0.046; 0.716; 0.740; 1" dur="25s" repeatCount="indefinite" />
+      </rect>
+    </clipPath>
+  </defs>
+
+  <style>
+    .mono { font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace; }
+    .ascii-red { fill: #EF4444; font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace; font-size: 11px; font-weight: 700; white-space: pre; }
+    .ascii-dim { fill: #991B1B; font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace; font-size: 11px; font-weight: 700; white-space: pre; }
+    .ascii-yel { fill: #DCDCAA; font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace; font-size: 11px; font-weight: 700; white-space: pre; }
+    .ascii-blu { fill: #9CDCFE; font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace; font-size: 11px; font-weight: 700; white-space: pre; }
+
+    .badge-float { animation: floatBadge 3.8s ease-in-out infinite; }
+    .blink { animation: blink 0.9s step-end infinite; }
+
+    /* Pixel Letters: Backspace S -&gt; T -&gt; I -&gt; D -&gt; E -&gt; R -&gt; C | Type C -&gt; R -&gt; E -&gt; D -&gt; I -&gt; T -&gt; S */
+    .p1 { animation: seqP1 25s linear infinite; }
+    .p2 { animation: seqP2 25s linear infinite; }
+    .p3 { animation: seqP3 25s linear infinite; }
+    .p4 { animation: seqP4 25s linear infinite; }
+    .p5 { animation: seqP5 25s linear infinite; }
+    .p6 { animation: seqP6 25s linear infinite; }
+    .p7 { animation: seqP7 25s linear infinite; }
+
+    /* ASCII Plaque: Backspace Bottom-to-Top | Build Top-to-Bottom */
+    .b1 { animation: seqB1 25s linear infinite; }
+    .b2 { animation: seqB2 25s linear infinite; }
+    .b3 { animation: seqB3 25s linear infinite; }
+    .b4 { animation: seqB4 25s linear infinite; }
+
+    /* Dedication Box Frame */
+    .box-in { animation: seqBox 25s linear infinite; }
+
+    @keyframes seqBox {
+      0%, 11.8%   { opacity: 1; }
+      12.3%, 64.5%{ opacity: 0; }
+      65.0%, 100% { opacity: 1; }
+    }
+
+    @keyframes seqP7 { 0%, 27.0% { opacity: 1; } 27.5%, 49.4% { opacity: 0; } 49.8%, 100% { opacity: 1; } }
+    @keyframes seqP6 { 0%, 27.6% { opacity: 1; } 28.1%, 48.8% { opacity: 0; } 49.2%, 100% { opacity: 1; } }
+    @keyframes seqP5 { 0%, 28.2% { opacity: 1; } 28.7%, 48.2% { opacity: 0; } 48.6%, 100% { opacity: 1; } }
+    @keyframes seqP4 { 0%, 28.8% { opacity: 1; } 29.3%, 47.6% { opacity: 0; } 48.0%, 100% { opacity: 1; } }
+    @keyframes seqP3 { 0%, 29.4% { opacity: 1; } 29.9%, 47.0% { opacity: 0; } 47.4%, 100% { opacity: 1; } }
+    @keyframes seqP2 { 0%, 30.0% { opacity: 1; } 30.5%, 46.4% { opacity: 0; } 46.8%, 100% { opacity: 1; } }
+    @keyframes seqP1 { 0%, 30.6% { opacity: 1; } 31.1%, 45.8% { opacity: 0; } 46.2%, 100% { opacity: 1; } }
+
+    @keyframes seqB4 { 0%, 27.2% { opacity: 1; } 27.8%, 45.0% { opacity: 0; } 45.5%, 100% { opacity: 1; } }
+    @keyframes seqB3 { 0%, 28.4% { opacity: 1; } 29.0%, 44.0% { opacity: 0; } 44.5%, 100% { opacity: 1; } }
+    @keyframes seqB2 { 0%, 29.6% { opacity: 1; } 30.2%, 43.0% { opacity: 0; } 43.5%, 100% { opacity: 1; } }
+    @keyframes seqB1 { 0%, 30.8% { opacity: 1; } 31.4%, 42.0% { opacity: 0; } 42.5%, 100% { opacity: 1; } }
+
+    @keyframes floatBadge {
+      0%, 100% { transform: translate(28px, 64px); }
+      50%      { transform: translate(28px, 56px); }
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+  </style>
+
+  
+  <rect x="1" y="1" width="918" height="388" rx="10" fill="#0B0C10" stroke="#991B1B" stroke-width="2" />
+
+  
+  <rect x="2" y="2" width="916" height="32" rx="8" fill="#16181D" />
+  <circle cx="22" cy="18" r="5" fill="#EF4444" />
+  <circle cx="40" cy="18" r="5" fill="#DCDCAA" />
+  <circle cx="58" cy="18" r="5" fill="#9CDCFE" />
+  <g clip-path="url(#cred-header)">
+    <text x="460" y="23" text-anchor="middle" fill="#9CDCFE" class="mono" font-size="12" font-weight="700">SYSTEM CREDITS — OOP 101 SPECIAL DEDICATION</text>
+  </g>
+
+  
+  <g class="badge-float" transform="translate(28, 64)">
+    <g class="b1">
+      <text y="0" class="ascii-dim" xml:space="preserve">      .---------------------------.</text>
+      <text y="15" class="ascii-dim" xml:space="preserve">     / .-------------------------. \</text>
+      <text y="30" class="ascii-red" xml:space="preserve">    | |      .-------------.      | |</text>
+      <text y="45" class="ascii-red" xml:space="preserve">    | |     |  [ OOP 101 ]  |     | |</text>
+    </g>
+    <g class="b2">
+      <text y="60" class="ascii-yel" xml:space="preserve">    | |     |   ██╗   ██╗   |     | |</text>
+      <text y="75" class="ascii-yel" xml:space="preserve">    | |     |  ████╗ ████║  |     | |</text>
+      <text y="90" class="ascii-red" xml:space="preserve">    | |     |  ╚█████████║  |     | |</text>
+      <text y="105" class="ascii-red" xml:space="preserve">    | |     |   ╚███████╔╝  |     | |</text>
+      <text y="120" class="ascii-red" xml:space="preserve">    | |     |    ╚═════╝    |     | |</text>
+    </g>
+    <g class="b3">
+      <text y="135" class="ascii-blu" xml:space="preserve">    | |      '-------------'      | |</text>
+      <text y="150" class="ascii-yel" xml:space="preserve">    | |      BATSTATEU • CICS     | |</text>
+      <text y="165" class="ascii-blu" xml:space="preserve">    | |       SECTION CS 2101     | |</text>
+      <text y="180" class="ascii-dim" xml:space="preserve">     \ '-------------------------' /</text>
+      <text y="195" class="ascii-dim" xml:space="preserve">      '----------=======----------'</text>
+    </g>
+    <g class="b4">
+      <text y="215" class="ascii-red" xml:space="preserve">              _[=========]_</text>
+      <text y="232" class="ascii-yel" xml:space="preserve">           .-'-------------'-.</text>
+      <text y="250" class="ascii-blu" xml:space="preserve">          [  AN FAMILY BUILD  ]</text>
+      <text y="268" class="ascii-dim" xml:space="preserve">          '-------------------'</text>
+    </g>
+  </g>
+
+  
+  <g transform="translate(310, 54)">
+    
+    <g class="p1" fill="#EF4444" transform="translate(0, 0)">
+      <rect x="6" y="0" width="18" height="6" />
+      <rect x="0" y="6" width="6" height="18" />
+      <rect x="24" y="6" width="6" height="4" />
+      <rect x="24" y="20" width="6" height="4" />
+      <rect x="6" y="24" width="18" height="6" />
+    </g>
+    
+    <g class="p2" fill="#EF4444" transform="translate(38, 0)">
+      <rect x="0" y="0" width="24" height="6" />
+      <rect x="0" y="6" width="6" height="24" />
+      <rect x="24" y="6" width="6" height="6" />
+      <rect x="6" y="12" width="18" height="6" />
+      <rect x="18" y="18" width="6" height="6" />
+      <rect x="24" y="24" width="6" height="6" />
+    </g>
+    
+    <g class="p3" fill="#EF4444" transform="translate(76, 0)">
+      <rect x="0" y="0" width="30" height="6" />
+      <rect x="0" y="6" width="6" height="6" />
+      <rect x="0" y="12" width="24" height="6" />
+      <rect x="0" y="18" width="6" height="6" />
+      <rect x="0" y="24" width="30" height="6" />
+    </g>
+    
+    <g class="p4" fill="#EF4444" transform="translate(114, 0)">
+      <rect x="0" y="0" width="24" height="6" />
+      <rect x="0" y="6" width="6" height="18" />
+      <rect x="24" y="6" width="6" height="18" />
+      <rect x="0" y="24" width="24" height="6" />
+    </g>
+    
+    <g class="p5" fill="#EF4444" transform="translate(152, 0)">
+      <rect x="0" y="0" width="24" height="6" />
+      <rect x="9" y="6" width="6" height="18" />
+      <rect x="0" y="24" width="24" height="6" />
+    </g>
+    
+    <g class="p6" fill="#EF4444" transform="translate(184, 0)">
+      <rect x="0" y="0" width="30" height="6" />
+      <rect x="12" y="6" width="6" height="24" />
+    </g>
+    
+    <g class="p7" fill="#EF4444" transform="translate(222, 0)">
+      <rect x="6" y="0" width="24" height="6" />
+      <rect x="0" y="6" width="6" height="6" />
+      <rect x="6" y="12" width="18" height="6" />
+      <rect x="24" y="18" width="6" height="6" />
+      <rect x="0" y="24" width="24" height="6" />
+    </g>
+
+    
+    <g clip-path="url(#cred-sub)">
+      <text x="0" y="54" fill="#DCDCAA" class="mono" font-size="16" font-weight="800" letter-spacing="1">
+        THANK YOU, MA'AM FATIMA!
+      </text>
+    </g>
+    <line x1="0" y1="68" x2="580" y2="68" stroke="#30363D" stroke-width="1" />
+
+    
+    <g clip-path="url(#cred-l1)">
+      <text x="0" y="96" fill="#9CDCFE" class="mono" font-size="12.5">&gt; Compiling Gratitude Package ....................... [100% SUCCESS]</text>
+    </g>
+    <g clip-path="url(#cred-l2)">
+      <text x="0" y="120" fill="#9CDCFE" class="mono" font-size="12.5">&gt; Course: Object-Oriented Programming (OOP 101) ..... [COMPLETED]</text>
+    </g>
+    <g clip-path="url(#cred-l3)">
+      <text x="0" y="144" fill="#9CDCFE" class="mono" font-size="12.5">&gt; Created by: Carandang • Palma • Palor ............. [AN FAMILY]</text>
+    </g>
+
+    
+    <g class="box-in">
+      <rect x="0" y="168" width="580" height="122" rx="6" fill="#141112" stroke="#EF4444" stroke-width="1.5" />
+    </g>
+    <g clip-path="url(#cred-m1)">
+      <text x="18" y="196" fill="#F8FAFC" class="mono" font-size="13" font-weight="700">To Ma'am Fatima,</text>
+    </g>
+    <g clip-path="url(#cred-m2)">
+      <text x="18" y="220" fill="#CBD5E1" class="mono" font-size="12">Thank you for your guidance, patience, and mentorship</text>
+    </g>
+    <g clip-path="url(#cred-m3)">
+      <text x="18" y="240" fill="#CBD5E1" class="mono" font-size="12">throughout building ECPC. Your OOP lessons empowered us</text>
+    </g>
+    <g clip-path="url(#cred-m4)">
+      <text x="18" y="260" fill="#CBD5E1" class="mono" font-size="12">to turn concepts into a working Java application.</text>
+    </g>
+
+    
+    <g class="box-in">
+      <text x="290" y="281" text-anchor="middle" fill="#DCDCAA" class="mono" font-size="11" font-weight="700">
+        [ Batangas State University — The National Engineering University ]<tspan fill="#EF4444" class="blink"> ▋</tspan>
+      </text>
+    </g>
+  </g>
+</svg>
